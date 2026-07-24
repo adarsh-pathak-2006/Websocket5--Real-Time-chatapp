@@ -16,7 +16,7 @@ class Member(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE)
     is_admin=models.BooleanField(default=False)
     joined_at=models.DateTimeField(auto_now_add=True)
-    group=models.ForeignKey(Group, on_delete=models.CASCADE)
+    group=models.ForeignKey(Group, on_delete=models.CASCADE, related_name='group_members')
 
     class Meta:
         constraints=[models.UniqueConstraint(fields=['user', 'group'], name='unique_member_constraint')]

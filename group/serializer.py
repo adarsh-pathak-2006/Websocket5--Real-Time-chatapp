@@ -1,9 +1,15 @@
 from rest_framework.serializers import ModelSerializer
-from group.models import Group, GroupMessage
+from group.models import Group, GroupMessage, Member
 from whoisthis.serializers import UserSerializer
 
+class MemberSerializer(ModelSerializer):
+    user=UserSerializer(read_only=True)
+    class Meta:
+        model=Member
+        fields='__all__'
+
 class GroupSerializer(ModelSerializer):
-    members=UserSerializer(read_only=True, many=True)
+    group_members=MemberSerializer(read_only=True, many=True)
     class Meta:
         model=Group
         fields='__all__'
