@@ -21,3 +21,9 @@ class ConversationSerializer(ModelSerializer):
     class Meta:
         model=Conversation
         fields='__all__'
+
+class ConversationWriteSerializer(ModelSerializer):
+    user=PrimaryKeyRelatedField(queryset=User.objects.all())
+    class Meta:
+        model=Conversation
+        fields=['chat', 'user', 'message']
