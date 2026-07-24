@@ -10,11 +10,11 @@ class RegisterAPI(APIView):
     def post(self, request):
         data=RegisterSerializer(data=request.data)
         if data.is_valid():
-            f_name=data.validated_data['first_name']
-            l_name=data.validated_data['last_name']
-            username=data.validated_data['username']
-            email=data.validated_data['email']
-            password=data.validated_data['password']
+            f_name=data.validated_data.get('first_name', '')
+            l_name=data.validated_data.get('last_name', '')
+            username=data.validated_data.get('username')
+            email=data.validated_data.get('email')
+            password=data.validated_data.get('password')
 
             if User.objects.filter(Q(username=username) | Q(email=email)).exists():
                 return Response({'user_err':'username or email already exists'}, status=400)

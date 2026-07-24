@@ -11,6 +11,7 @@ class ChatSerializer(ModelSerializer):
         fields='__all__'
 
 class ChatCreationSerializer(ModelSerializer):
+    user1=PrimaryKeyRelatedField(read_only=True)
     user2=PrimaryKeyRelatedField(queryset=User.objects.all())
     class Meta:
         model=Chat

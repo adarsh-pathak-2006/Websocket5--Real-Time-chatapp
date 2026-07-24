@@ -17,15 +17,18 @@ class ConversationConsumer(AsyncWebsocketConsumer):
         chat_id=data.get("chat_id")
         message=data.get("message")
 
-        chat_obj=await Chat.objects.aget(id=chat_id)
+        try:
+            chat_obj=await Chat.objects.aget(id=chat_id)
+        except Chat.DoesNotExist:
+            return
 
         if self.user not in [chat_obj.user1, chat_obj.user2]:
             return
         await Conversation.objects.acreate(chat=chat_obj, message=message, user=self.user)
         if self.user == chat_obj.user1:
-            reciever=chat_obj.user2
+            receiver=chat_obj.user2
         else:
-            reciever=chat_obj.user1
+            receiver=chat_obj.user1
 
         payload={
             'type':'chat_message',
@@ -34,7 +37,7 @@ class ConversationConsumer(AsyncWebsocketConsumer):
             'message': message,
         }
 
-        await self.channel_layer.group_send(f"user_{reciever.id}", payload)
+        await self.channel_layer.group_send(f"user_{receiver.id}", payload)
 
         await self.channel_layer.group_send(self.group_name, payload)
 

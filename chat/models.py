@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class Chat(models.Model):
     user1=models.ForeignKey(User, on_delete=models.CASCADE, related_name='who_is_talking')
-    user2=models.ForeignKey(User, on_delete=models.CASCADE, related_name='talking to who')
+    user2=models.ForeignKey(User, on_delete=models.CASCADE, related_name='talking_to_who')
     created_on=models.DateTimeField(auto_now_add=True)
 
     class Meta:

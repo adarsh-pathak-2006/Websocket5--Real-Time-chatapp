@@ -8,7 +8,7 @@ from django.db.models import Q
 
 class ChatAPI(APIView):
     def get(self, request):
-        data=Chat.objects.filter(user1=request.user)
+        data=Chat.objects.filter(Q(user1=request.user) | Q(user2=request.user))
         serial=ChatSerializer(data, many=True)
         return Response(serial.data, status=200)
 
@@ -23,6 +23,6 @@ class ChatAPI(APIView):
 class ConversationAPI(APIView):
     def get(self, request, pk):
         chat_data=get_object_or_404(Chat, Q(user1=request.user) | Q(user2=request.user), id=pk)
-        data=Conversation.objects.filter(chat=chat_data, user=request.user)
+        data=Conversation.objects.filter(chat=chat_data)
         serial=ConversationSerializer(data, many=True)
         return Response(serial.data, status=200)

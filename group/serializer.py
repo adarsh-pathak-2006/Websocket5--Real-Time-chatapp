@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 from group.models import Group, GroupMessage, Member
 from whoisthis.serializers import UserSerializer
 
@@ -9,6 +9,7 @@ class MemberSerializer(ModelSerializer):
         fields='__all__'
 
 class GroupSerializer(ModelSerializer):
+    created_by=PrimaryKeyRelatedField(read_only=True)
     group_members=MemberSerializer(read_only=True, many=True)
     class Meta:
         model=Group
