@@ -27,20 +27,20 @@ class ConversationConsumer(AsyncWebsocketConsumer):
         else:
             reciever=chat_obj.user1
 
-        await self.channel_layer.group_send(f"user_{reciever.id}", {
+        payload={
             'type':'chat_message',
+            'sender_id': self.user.id,
             'chat_id': chat_id,
             'message': message,
-        })
+        }
 
-        await self.channel_layer.group_send(self.group_name,{
-            'type':'chat_message',
-            'chat_id': chat_id,
-            'message': message,
-        })
+        await self.channel_layer.group_send(f"user_{reciever.id}", payload)
+
+        await self.channel_layer.group_send(self.group_name, payload)
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
+            'sender_id': event["sender_id"],
             'chat_id':event["chat_id"],
             'message':event["message"]
         }))
