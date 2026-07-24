@@ -22,7 +22,7 @@ class GroupAPI(APIView):
 class GroupMemberAPI(APIView):
     def get(self, request, pk):
         grp_data=get_object_or_404(Group, created_by=request.user, id=pk)
-        data=Member.objects.filter(Group=grp_data)
+        data=Member.objects.filter(group=grp_data)
         serial=MemberSerializer(data, many=True)
         return Response(serial.data, status=200)
 
@@ -30,7 +30,7 @@ class GroupMemberAPI(APIView):
         serial=MemberSerializer(data=request.data)
         if serial.is_valid():
             grp_data=get_object_or_404(Group, created_by=request.user, id=pk)
-            serial.save(user=request.data, group=grp_data)
+            serial.save(user=request.user, group=grp_data)
             return Response(serial.data)
         return Response(serial.errors, status=400)
 
