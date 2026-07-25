@@ -18,14 +18,14 @@ class ConversationConsumer(AsyncWebsocketConsumer):
         message=data.get("message")
 
         try:
-            chat_obj=await Chat.objects.aget(id=chat_id)
+            chat_obj=await Chat.objects.select_related('user1', 'user2').aget(id=chat_id)
         except Chat.DoesNotExist:
             return
 
-        if self.user not in [chat_obj.user1, chat_obj.user2]:
+        if self.user.id not in [chat_obj.user1.id, chat_obj.user2.id]:
             return
         await Conversation.objects.acreate(chat=chat_obj, message=message, user=self.user)
-        if self.user == chat_obj.user1:
+        if self.user.id == chat_obj.user1.id:
             receiver=chat_obj.user2
         else:
             receiver=chat_obj.user1
