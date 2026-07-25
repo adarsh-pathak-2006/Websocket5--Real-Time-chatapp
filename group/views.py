@@ -5,16 +5,19 @@ from group.serializer import GroupSerializer, GroupMessageSerializer, MemberSeri
 from rest_framework.response import Response
 
 
+from django.db.models import Q
+
 class GroupAPI(APIView):
     def get(self, request):
-        data=Group.objects.filter(created_by=request.user)
+        data=Group.objects.filter(Q(created_by=request.user) | Q(group_members__user=request.user)).distinct()
         serial=GroupSerializer(data, many=True)
         return Response(serial.data, status=200)
 
     def post(self, request):
         serial=GroupSerializer(data=request.data)
         if serial.is_valid():
-            serial.save(created_by=request.user)
+            group = serial.save(created_by=request.user)
+            Member.objects.create(group=group, user=request.user, is_admin=True)
             return Response(serial.data, status=201)
         else:
             return Response(serial.errors, status=400)
@@ -30,11 +33,20 @@ class GroupMemberAPI(APIView):
 
     def post(self, request, pk):
         grp_data=get_object_or_404(Group, created_by=request.user, id=pk)
+        username = request.data.get('username')
         user_id = request.data.get('user_id')
-        if not user_id:
-            return Response({'error': 'user_id is required'}, status=400)
+        
         from django.contrib.auth.models import User
-        user_to_add = get_object_or_404(User, id=user_id)
+        if username:
+            try:
+                user_to_add = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=404)
+        elif user_id:
+            user_to_add = get_object_or_404(User, id=user_id)
+        else:
+            return Response({'error': 'username or user_id is required'}, status=400)
+
         if Member.objects.filter(group=grp_data, user=user_to_add).exists():
             return Response({'error': 'Already a member'}, status=400)
         Member.objects.create(group=grp_data, user=user_to_add)

@@ -6,7 +6,10 @@ from django.db.models import Q
 from rest_framework.response import Response
 
 
+from rest_framework.permissions import AllowAny
+
 class RegisterAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         data=RegisterSerializer(data=request.data)
         if data.is_valid():

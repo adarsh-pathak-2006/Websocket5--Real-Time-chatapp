@@ -13,6 +13,18 @@ class ChatAPI(APIView):
         return Response(serial.data, status=200)
 
     def post(self, request):
+        username = request.data.get('username')
+        if username:
+            from django.contrib.auth.models import User
+            try:
+                user2 = User.objects.get(username=username)
+                # Create a mutable copy of request.data if it's a QueryDict, or just modify it
+                if hasattr(request.data, '_mutable'):
+                    request.data._mutable = True
+                request.data['user2'] = user2.id
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=404)
+        
         serial=ChatCreationSerializer(data=request.data)
         if serial.is_valid():
             serial.save(user1=request.user)
